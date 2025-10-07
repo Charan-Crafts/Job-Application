@@ -1,120 +1,69 @@
 package com.gainandshain.Job.Application.Job;
 
 
+import org.apache.coyote.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
+public class JobController{
 
-public class JobController {
+    @Autowired
+    JobServiceImpl jobService;
 
-    List<Job> jobs = new ArrayList<>();
-
-    // Get all jobs
     @GetMapping("/jobs")
-    public List<Job> getAllJobs(){
-
-        return jobs;
-    }
-
-    // Get specific job by Id
-    @GetMapping("/jobs/{id}")
-    public Job getJobById(@PathVariable String id){
-        Job getJob =null;
-        Optional<Job> isJobExists = jobs.stream()
-                .filter(j->j.getJobId().equalsIgnoreCase(id)).findFirst();
-
-        if(isJobExists.isPresent()){
-            getJob = isJobExists.get();
-            return getJob;
-        }else{
-            return getJob;
+    public ResponseEntity<List<Job>> fetchAllJobs(){
+        try {
+            return jobService.fetchAllJobs();
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity(Collections.emptyList(),e.getStatusCode());
         }
     }
 
-
-    // Add new Job
     @PostMapping("/addJob")
-    public String createNewJob(@RequestBody Job newJob){
-        jobs.add(newJob);
+    public ResponseEntity<String > addNewJob(@RequestBody Job job){
 
-        return "New job added successfully !!";
+        return jobService.createNewJob(job);
     }
 
+    @GetMapping("/job/{jobId}")
+    public ResponseEntity<Job> getSingleJob(@PathVariable String jobId){
 
-    // Delete the Job with Id
-    @DeleteMapping("/deleteJob/{id}")
-    public String deleteJobById(@PathVariable String id){
-
-        Optional<Job> isExists = jobs.stream().
-                filter(j->j.getJobId().equalsIgnoreCase(id))
-                .findFirst();
-
-        if(isExists.isPresent()){
-
-            Job deletedJob = isExists.get();
-
-            jobs.remove(deletedJob);
-
-            return ("Job is deleted Successfully !");
-        }else{
-            return ("Job is not founded with id "+id);
+        try{
+            return jobService.fetchJobById(jobId);
+        }catch (ResponseStatusException e){
+            return ResponseEntity.notFound().build();
         }
     }
 
-    // Update specific job with id
-    @PutMapping("/updateJob/{id}")
-    public String updateJob(@PathVariable String id,@RequestBody Job job){
+    @DeleteMapping("/deleteJob/{jobId}")
+    public ResponseEntity<String> deleteJobById(@PathVariable String jobId){
 
-        Optional<Job> isJobExists = jobs.stream()
-                .filter(j->j.getJobId().equalsIgnoreCase(id))
-                .findFirst();
+        try{
 
-        if(isJobExists.isPresent()){
+            return jobService.deleteJobById(jobId);
 
-            Job newUpdateJob = isJobExists.get();
-            newUpdateJob.setJobDescription(job.getJobDescription());
-            newUpdateJob.setJobTitle(job.getJobTitle());
-            newUpdateJob.setCompanyName(job.getCompanyName());
-            newUpdateJob.setLocation(job.getCompanyName());
-            newUpdateJob.setMaxSalary(job.getMaxSalary());
-            newUpdateJob.setMinSalary(job.getMinSalary());
+        }catch (ResponseStatusException e){
 
-            return "Job is updated";
-        }else{
-            return ("Job is not founded with Id "+id);
+            return new ResponseEntity<>("Job Not founded", HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping("/job/{id}/{company}")
-    public Job getCompanySpecificJob(@PathVariable String id ,String company ){
+    @PutMapping("/updateJob/{jobId}")
+    public ResponseEntity<String> updateJobById(@PathVariable String jobId,@RequestBody Job job){
 
-        // Check wheater the job exists with that id
+        try{
+            return jobService.updateJobById(jobId,job);
+        }catch (ResponseStatusException e){
 
-        Job getJobDetails = null;
-
-        Optional<Job> isJobExists = jobs.stream().
-                filter(j->j.getJobId().equalsIgnoreCase(id))
-                .findFirst();
-
-        if(isJobExists.isPresent()){
-
-            // Check the company Matches
-
-            Job foundedJob = isJobExists.get();
-
-            if(foundedJob.getCompanyName().equalsIgnoreCase(company)){
-
-                return  foundedJob;
-            }else {
-                return getJobDetails;
-            }
-
-        }else{
-            return getJobDetails;
+            return  new ResponseEntity<>("Job not found",e.getStatusCode());
         }
     }
 }
