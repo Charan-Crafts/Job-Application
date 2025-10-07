@@ -1,8 +1,19 @@
 package com.gainandshain.Job.Application.Job;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class Job {
 
+    public Job(){}
     private String jobTitle;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     private String jobId;
 
@@ -16,7 +27,9 @@ public class Job {
 
     private String location;
 
-    public Job(String jobTitle, String jobId, String companyName, double minSalary, double maxSalary, String jobDescription, String location) {
+
+    public Job(String jobTitle, String jobId, String companyName, double minSalary, double maxSalary, String jobDescription, String location,long id) {
+        this.id = id;
         this.jobTitle = jobTitle;
         this.jobId = jobId;
         this.companyName = companyName;
@@ -24,6 +37,14 @@ public class Job {
         this.maxSalary = maxSalary;
         this.jobDescription = jobDescription;
         this.location = location;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getJobTitle() {

@@ -1,5 +1,6 @@
 package com.gainandshain.Job.Application.Job;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -13,21 +14,30 @@ import java.util.Optional;
 @Service
 public class JobServiceImpl implements JobService{
 
-    List<Job> allJobs = new ArrayList<>();
+    @Autowired
+    JobRepository jobRepository;
+
+
     @Override
     public ResponseEntity<List<Job>> fetchAllJobs() {
 
-        if(allJobs.isEmpty()){
+        if(jobRepository.count()==0){
             throw new  ResponseStatusException(HttpStatus.NO_CONTENT,"Jobs are Empty");
         }else{
-            return new ResponseEntity<>(allJobs,HttpStatus.OK) ;
+            return new ResponseEntity<>(jobRepository.findAll(),HttpStatus.OK) ;
         }
     }
 
     @Override
     public ResponseEntity<String> createNewJob(Job job) {
-        //
-        allJobs.add(job);
+
+        Job savedJob =jobRepository.save(job);
+
+        String getJobId = String.format("JOB-%03d",savedJob.getId());
+
+        savedJob.setJobId(getJobId);
+
+        jobRepository.save(savedJob);
 
         return new ResponseEntity<>("Job Added", HttpStatus.CREATED);
     }
@@ -36,15 +46,17 @@ public class JobServiceImpl implements JobService{
     public ResponseEntity<Job> fetchJobById(String jobId) {
         // Check wheather the job is-exists or not
 
-        Optional<Job> isJobFound = allJobs.stream()
-                .filter(j->j.getJobId().equalsIgnoreCase(jobId))
-                .findFirst();
+        List<Job> jobs = jobRepository.findAll();
 
-        if(isJobFound.isPresent()){
+        Optional<Job> isJob = jobs.stream()
+                .filter(j->j.getJobId().equalsIgnoreCase(jobId)).findFirst();
+
+
+        if(isJob.isPresent()){
 
             // Job is founded in the List
 
-            return new ResponseEntity<>(isJobFound.get(),HttpStatus.FOUND);
+            return new ResponseEntity<>(isJob.get(),HttpStatus.FOUND);
         }else{
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Job not founded");
         }
@@ -56,13 +68,14 @@ public class JobServiceImpl implements JobService{
 
         // Check wheather the job is-exists or not
 
-        Optional<Job> isJobFounded = allJobs.stream()
-                .filter(j->j.getJobId().equalsIgnoreCase(jobId))
-                .findFirst();
+        List<Job> jobs = jobRepository.findAll();
+
+        Optional<Job> isJobFounded = jobs.stream()
+                .filter(j->j.getJobId().equalsIgnoreCase(jobId)).findFirst();
 
         if(isJobFounded.isPresent()){
 
-            allJobs.remove(isJobFounded.get());
+            jobRepository.delete(isJobFounded.get());
 
             return new ResponseEntity<>("Job is deleted",HttpStatus.OK);
 
@@ -74,8 +87,10 @@ public class JobServiceImpl implements JobService{
     @Override
     public ResponseEntity<String> updateJobById(String jobId, Job job) {
 
+        List<Job> jobs = jobRepository.findAll();
 
-        Optional<Job> isJobFounded = allJobs.stream()
+
+        Optional<Job> isJobFounded = jobs.stream()
                 .filter(j->j.getJobId().equalsIgnoreCase(jobId))
                 .findFirst();
 
@@ -88,7 +103,7 @@ public class JobServiceImpl implements JobService{
             newJob.setMaxSalary(job.getMaxSalary());
             newJob.setLocation(job.getLocation());
 
-            allJobs.add(newJob);
+            jobRepository.save(newJob);
 
             return new ResponseEntity<>("Job is updated",HttpStatus.OK);
         }else{
