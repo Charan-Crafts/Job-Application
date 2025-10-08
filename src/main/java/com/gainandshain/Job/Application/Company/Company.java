@@ -24,6 +24,17 @@ public class Company {
     @OneToMany(mappedBy = "company")
     private List<Job> jobs;
 
+<<<<<<< HEAD
+=======
+    public List<Review> getReview() {
+        return review;
+    }
+
+    public void setReview(List<Review> review) {
+        this.review = review;
+    }
+
+>>>>>>> 12f286e42983576418e5b09889f21ea0600d6e18
     @OneToMany(mappedBy = "company")
     private List<Review> review;
 

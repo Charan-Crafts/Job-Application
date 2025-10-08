@@ -1,11 +1,25 @@
 package com.gainandshain.Job.Application.Review;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 12f286e42983576418e5b09889f21ea0600d6e18
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gainandshain.Job.Application.Company.Company;
 import jakarta.persistence.*;
 
 @Entity
 public class Review {
+
+
+    public Review(){}
+
+    public Review(long reviewId, String reviewTitle, String reviewDescription, Company company) {
+        this.reviewId = reviewId;
+        this.reviewTitle = reviewTitle;
+        this.reviewDescription = reviewDescription;
+        this.company = company;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,6 +29,7 @@ public class Review {
 
     private String reviewDescription;
 
+<<<<<<< HEAD
     private double rating;
 
     @JsonIgnore
@@ -37,6 +52,11 @@ public class Review {
         this.reviewDescription = reviewDescription;
         this.rating = rating;
     }
+=======
+    @JsonIgnore
+    @ManyToOne
+    private Company company;
+>>>>>>> 12f286e42983576418e5b09889f21ea0600d6e18
 
     public long getReviewId() {
         return reviewId;
@@ -62,11 +82,11 @@ public class Review {
         this.reviewDescription = reviewDescription;
     }
 
-    public double getRating() {
-        return rating;
+    public Company getCompany() {
+        return company;
     }
 
-    public void setRating(double rating) {
-        this.rating = rating;
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }
