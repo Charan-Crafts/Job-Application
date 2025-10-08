@@ -2,6 +2,7 @@ package com.gainandshain.Job.Application.Company;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gainandshain.Job.Application.Job.Job;
+import com.gainandshain.Job.Application.Review.Review;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -22,6 +23,17 @@ public class Company {
     @JsonIgnore
     @OneToMany(mappedBy = "company")
     private List<Job> jobs;
+
+    public List<Review> getReview() {
+        return review;
+    }
+
+    public void setReview(List<Review> review) {
+        this.review = review;
+    }
+
+    @OneToMany(mappedBy = "company")
+    private List<Review> review;
 
     public Company(long companyId, String companyName, String companyDescription, List<Job> jobs) {
         this.companyId = companyId;
